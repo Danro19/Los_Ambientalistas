@@ -100,76 +100,13 @@
 											"top": 211,
 											"width": 206,
 											"height": 13
-										},
-										{
-											"_type": "ERDColumnView",
-											"_id": "AAAAAAGVaEqdxfbqZCA=",
-											"_parent": {
-												"$ref": "AAAAAAGVaEi4y/aHWmA="
-											},
-											"model": {
-												"$ref": "AAAAAAGVaEqdwfbnsRM="
-											},
-											"visible": false,
-											"font": "Arial;13;0",
-											"left": 109,
-											"top": 298,
-											"width": 206,
-											"height": 13
-										},
-										{
-											"_type": "ERDColumnView",
-											"_id": "AAAAAAGVaErSZPbx5dM=",
-											"_parent": {
-												"$ref": "AAAAAAGVaEi4y/aHWmA="
-											},
-											"model": {
-												"$ref": "AAAAAAGVaErSYfbupiY="
-											},
-											"visible": false,
-											"font": "Arial;13;0",
-											"left": 109,
-											"top": 313,
-											"width": 206,
-											"height": 13
-										},
-										{
-											"_type": "ERDColumnView",
-											"_id": "AAAAAAGVaEr9xfb4SHQ=",
-											"_parent": {
-												"$ref": "AAAAAAGVaEi4y/aHWmA="
-											},
-											"model": {
-												"$ref": "AAAAAAGVaEr9wfb1nME="
-											},
-											"visible": false,
-											"font": "Arial;13;0",
-											"left": 109,
-											"top": 328,
-											"width": 206,
-											"height": 13
-										},
-										{
-											"_type": "ERDColumnView",
-											"_id": "AAAAAAGVaFP3WvewF0o=",
-											"_parent": {
-												"$ref": "AAAAAAGVaEi4y/aHWmA="
-											},
-											"model": {
-												"$ref": "AAAAAAGVaFP3V/et9D4="
-											},
-											"font": "Arial;13;0",
-											"left": 117,
-											"top": 226,
-											"width": 206,
-											"height": 13
 										}
 									],
 									"font": "Arial;13;0",
 									"left": 112,
 									"top": 191,
 									"width": 216,
-									"height": 53
+									"height": 38
 								}
 							],
 							"font": "Arial;13;0",
@@ -3915,45 +3852,6 @@
 							"name": "nombre",
 							"type": "varchar(50)",
 							"length": 0
-						},
-						{
-							"_type": "ERDColumn",
-							"_id": "AAAAAAGVaEqdwfbnsRM=",
-							"_parent": {
-								"$ref": "AAAAAAGVaEi4yvaDB2Y="
-							},
-							"name": "codigoParque",
-							"type": "int",
-							"length": 0
-						},
-						{
-							"_type": "ERDColumn",
-							"_id": "AAAAAAGVaErSYfbupiY=",
-							"_parent": {
-								"$ref": "AAAAAAGVaEi4yvaDB2Y="
-							},
-							"name": "codigoEntidad",
-							"type": "int",
-							"length": 0
-						},
-						{
-							"_type": "ERDColumn",
-							"_id": "AAAAAAGVaEr9wfb1nME=",
-							"_parent": {
-								"$ref": "AAAAAAGVaEi4yvaDB2Y="
-							},
-							"name": "nombreEntidad",
-							"type": "varchar(50)",
-							"length": 0
-						},
-						{
-							"_type": "ERDColumn",
-							"_id": "AAAAAAGVaFP3V/et9D4=",
-							"_parent": {
-								"$ref": "AAAAAAGVaEi4yvaDB2Y="
-							},
-							"name": "capital",
-							"length": 0
 						}
 					]
 				},
@@ -5543,7 +5441,10 @@
 							"name": "idProyecto",
 							"type": "int",
 							"length": 0,
-							"foreignKey": true
+							"foreignKey": true,
+							"referenceTo": {
+								"$ref": "AAAAAAGVa1ZAdgUJKaY="
+							}
 						},
 						{
 							"_type": "ERDColumn",
@@ -5554,7 +5455,10 @@
 							"name": "idEspecie",
 							"type": "int",
 							"length": 0,
-							"foreignKey": true
+							"foreignKey": true,
+							"referenceTo": {
+								"$ref": "AAAAAAGVazT8IAOEmp8="
+							}
 						}
 					]
 				},
@@ -5575,7 +5479,10 @@
 							"name": "idInvestigador",
 							"type": "int",
 							"length": 0,
-							"foreignKey": true
+							"foreignKey": true,
+							"referenceTo": {
+								"$ref": "AAAAAAGVaznM0QQtWYg="
+							}
 						},
 						{
 							"_type": "ERDColumn",
@@ -5586,7 +5493,10 @@
 							"name": "idProyecto",
 							"type": "int",
 							"length": 0,
-							"foreignKey": true
+							"foreignKey": true,
+							"referenceTo": {
+								"$ref": "AAAAAAGVa1ZAdgUJKaY="
+							}
 						}
 					]
 				},
@@ -5637,7 +5547,11 @@
 							},
 							"name": "idVisitante",
 							"type": "int",
-							"length": 0
+							"length": 0,
+							"foreignKey": true,
+							"referenceTo": {
+								"$ref": "AAAAAAGVa133TQXXTg0="
+							}
 						},
 						{
 							"_type": "ERDColumn",
@@ -5647,7 +5561,11 @@
 							},
 							"name": "idAlojamiento",
 							"type": "int",
-							"length": 0
+							"length": 0,
+							"foreignKey": true,
+							"referenceTo": {
+								"$ref": "AAAAAAGVa2NYPQYInKU="
+							}
 						}
 					]
 				},
@@ -5698,7 +5616,10 @@
 							"name": "idConservacion",
 							"type": "int",
 							"length": 0,
-							"foreignKey": true
+							"foreignKey": true,
+							"referenceTo": {
+								"$ref": "AAAAAAGVaznVGAQ0s2w="
+							}
 						},
 						{
 							"_type": "ERDColumn",
@@ -5709,7 +5630,10 @@
 							"name": "idArea",
 							"type": "int",
 							"length": 0,
-							"foreignKey": true
+							"foreignKey": true,
+							"referenceTo": {
+								"$ref": "AAAAAAGVaFX34Pfhvk8="
+							}
 						}
 					]
 				},
@@ -5730,7 +5654,10 @@
 							"name": "idVigilancia",
 							"type": "int",
 							"length": 0,
-							"foreignKey": true
+							"foreignKey": true,
+							"referenceTo": {
+								"$ref": "AAAAAAGVaznfIQQ6wYA="
+							}
 						},
 						{
 							"_type": "ERDColumn",
@@ -5741,7 +5668,10 @@
 							"name": "idArea",
 							"type": "int",
 							"length": 0,
-							"foreignKey": true
+							"foreignKey": true,
+							"referenceTo": {
+								"$ref": "AAAAAAGVaFX34Pfhvk8="
+							}
 						}
 					]
 				},
@@ -5762,7 +5692,10 @@
 							"name": "idDepartamento",
 							"type": "int",
 							"length": 0,
-							"foreignKey": true
+							"foreignKey": true,
+							"referenceTo": {
+								"$ref": "AAAAAAGVaEpjgfbZ360="
+							}
 						},
 						{
 							"_type": "ERDColumn",
@@ -5773,7 +5706,10 @@
 							"name": "idParque",
 							"type": "int",
 							"length": 0,
-							"foreignKey": true
+							"foreignKey": true,
+							"referenceTo": {
+								"$ref": "AAAAAAGVaEwsMfcTe+E="
+							}
 						}
 					]
 				}
