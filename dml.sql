@@ -106,7 +106,6 @@ INSERT INTO entidad (nombre) VALUES
 ('Fundación Guardianes del Ambiente'),
 ('Organización para la Vida Natural');
 
-select * from entidad;
 
 -- insert departamento
 
@@ -163,20 +162,6 @@ INSERT INTO departamento (nombre, idEntidad) VALUES
 ('Río Verde', 50);
 
 
-select * from departamento d 
--- insert departamentoParque
-
-INSERT INTO departamentoParque (idDepartamento, idParque) VALUES
-(1, 10), (2, 15), (3, 20), (4, 25), (5, 30),
-(6, 35), (7, 40), (8, 45), (9, 50), (10, 5),
-(11, 12), (12, 18), (13, 22), (14, 28), (15, 32),
-(16, 37), (17, 42), (18, 48), (19, 3), (20, 8),
-(21, 14), (22, 19), (23, 24), (24, 29), (25, 34),
-(26, 39), (27, 44), (28, 49), (29, 2), (30, 7),
-(31, 13), (32, 17), (33, 23), (34, 27), (35, 31),
-(36, 36), (37, 41), (38, 46), (39, 1), (40, 6),
-(41, 11), (42, 16), (43, 21), (44, 26), (45, 33),
-(46, 38), (47, 43), (48, 47), (49, 4), (50, 9);
 
 -- insert area
 
@@ -284,8 +269,6 @@ INSERT INTO area (nombre, extencionArea, idParque) VALUES
 ('Meseta del Sol', 460.9, 49),
 ('Sendero de los Vientos', 535.2, 50);
 
-select count(id) from area
-
 
 -- insert especie
 
@@ -341,7 +324,6 @@ INSERT INTO especie (tipoEspecie, nombreCientifico, nombreVulgar, cantidad, idAr
 ("minerales", "Apatito", "Apatito azul", 33, 99),
 ("minerales", "Jaspe rojo", "Jaspe rojo", 99, 100);
 
-select * from especie e
 
 
 -- insert proyecto
@@ -398,13 +380,6 @@ INSERT INTO proyecto (nombre, presupuesto, fechaInicio, fechaFin) VALUES
 INSERT INTO proyecto (nombre, presupuesto, fechaInicio, fechaFin) VALUES
 ("Restauración de Suelos en Selvas Tropicales", 485000.00, "2023-09-12", "2026-05-30"),
 ("Conservación de Especies Nocturnas", 530500.00, "2024-01-25", "2026-10-15");
-
-
-SELECT * FROM proyecto;
-
-select count(id) from proyecto p ;
-
-
 
 -- proyecto especieProyecto
 
@@ -730,9 +705,7 @@ WHERE tipoPersonal = '003'
 ORDER BY RAND()
 LIMIT 50;
 
-SET FOREIGN_KEY_CHECKS = 0;
-TRUNCATE TABLE vigilancia;
-SET FOREIGN_KEY_CHECKS = 1;
+
 
 
 
@@ -751,57 +724,58 @@ SELECT id FROM personal WHERE tipoPersonal = '004';
 
 
 -- insert visitante
-INSERT INTO visitante (cedula, direccion, profesion, idGestion) VALUES
-('1005234781', 'Calle 10 #5-20', 'Ingeniero Civil', 1),
-('1006345782', 'Carrera 15 #12-30', 'Médico', 2),
-('1007456893', 'Avenida 30 #8-50', 'Profesor', 3),
-('1008567904', 'Diagonal 45 #20-15', 'Arquitecto', 4),
-('1009678015', 'Transversal 60 #14-25', 'Abogado', 5),
-('1010789126', 'Calle 25 #18-40', 'Contador', 6),
-('1011890237', 'Carrera 35 #22-60', 'Psicólogo', 7),
-('1012901348', 'Avenida 50 #30-70', 'Periodista', 8),
-('1013012459', 'Calle 40 #25-80', 'Diseñador Gráfico', 9),
-('1014123560', 'Carrera 10 #35-90', 'Biólogo', 10),
-('1015234671', 'Avenida 20 #40-100', 'Sociólogo', 11),
-('1016345782', 'Calle 15 #45-110', 'Administrador de Empresas', 12),
-('1017456893', 'Carrera 25 #50-120', 'Chef', 13),
-('1018567904', 'Avenida 60 #55-130', 'Físico', 14),
-('1019678015', 'Calle 35 #60-140', 'Matemático', 15),
-('1020789126', 'Carrera 40 #65-150', 'Ingeniero Ambiental', 16),
-('1021890237', 'Avenida 70 #70-160', 'Actor', 17),
-('1022901348', 'Calle 50 #75-170', 'Músico', 18),
-('1023012459', 'Carrera 55 #80-180', 'Economista', 19),
-('1024123560', 'Avenida 80 #85-190', 'Farmacéutico', 20),
-('1025234671', 'Calle 60 #90-200', 'Historiador', 21),
-('1026345782', 'Carrera 65 #95-210', 'Geólogo', 22),
-('1027456893', 'Avenida 90 #100-220', 'Ingeniero Mecánico', 23),
-('1028567904', 'Calle 70 #105-230', 'Politólogo', 24),
-('1029678015', 'Carrera 75 #110-240', 'Sociólogo', 25),
-('1030789126', 'Avenida 100 #115-250', 'Filósofo', 26),
-('1031890237', 'Calle 80 #120-260', 'Traductor', 27),
-('1032901348', 'Carrera 85 #125-270', 'Desarrollador de Software', 28),
-('1033012459', 'Avenida 110 #130-280', 'Astrónomo', 29),
-('1034123560', 'Calle 90 #135-290', 'Técnico en Redes', 30),
-('1035234671', 'Carrera 95 #140-300', 'Ingeniero Eléctrico', 31),
-('1036345782', 'Avenida 120 #145-310', 'Investigador', 32),
-('1037456893', 'Calle 100 #150-320', 'Analista de Datos', 33),
-('1038567904', 'Carrera 105 #155-330', 'Especialista en Ciberseguridad', 34),
-('1039678015', 'Avenida 130 #160-340', 'Veterinario', 35),
-('1040789126', 'Calle 110 #165-350', 'Antropólogo', 36),
-('1041890237', 'Carrera 115 #170-360', 'Diseñador UX/UI', 37),
-('1042901348', 'Avenida 140 #175-370', 'Nutricionista', 38),
-('1043012459', 'Calle 120 #180-380', 'Epidemiólogo', 39),
-('1044123560', 'Carrera 125 #185-390', 'Enfermero', 40),
-('1045234671', 'Avenida 150 #190-400', 'Investigador Forense', 41),
-('1046345782', 'Calle 130 #195-410', 'Profesor Universitario', 42),
-('1047456893', 'Carrera 135 #200-420', 'Terapeuta Ocupacional', 43),
-('1048567904', 'Avenida 160 #205-430', 'Técnico en Electrónica', 44),
-('1049678015', 'Calle 140 #210-440', 'Psicopedagogo', 45),
-('1050789126', 'Carrera 145 #215-450', 'Piloto', 46),
-('1051890237', 'Avenida 170 #220-460', 'Abogado Penalista', 47),
-('1052901348', 'Calle 150 #225-470', 'Fotógrafo', 48),
-('1053012459', 'Carrera 155 #230-480', 'Escritor', 49),
-('1054123560', 'Avenida 180 #235-490', 'Consultor de Negocios', 50);
+INSERT INTO visitante (cedula, nombre, direccion, profesion, idGestion) VALUES
+('1005234781', 'Juan Pérez', 'Calle 10 #5-20', 'Ingeniero Civil', 1),
+('1006345782', 'María Gómez', 'Carrera 15 #12-30', 'Médico', 2),
+('1007456893', 'Carlos Rodríguez', 'Avenida 30 #8-50', 'Profesor', 3),
+('1008567904', 'Laura Fernández', 'Diagonal 45 #20-15', 'Arquitecto', 4),
+('1009678015', 'Andrés López', 'Transversal 60 #14-25', 'Abogado', 5),
+('1010789126', 'Sofía Ramírez', 'Calle 25 #18-40', 'Contador', 6),
+('1011890237', 'Luis Torres', 'Carrera 35 #22-60', 'Psicólogo', 7),
+('1012901348', 'Ana Morales', 'Avenida 50 #30-70', 'Periodista', 8),
+('1013012459', 'Pedro Herrera', 'Calle 40 #25-80', 'Diseñador Gráfico', 9),
+('1014123560', 'Gabriela Castro', 'Carrera 10 #35-90', 'Biólogo', 10),
+('1015234671', 'Felipe Ruiz', 'Avenida 20 #40-100', 'Sociólogo', 11),
+('1016345782', 'Camila Mendoza', 'Calle 15 #45-110', 'Administrador de Empresas', 12),
+('1017456893', 'José Vargas', 'Carrera 25 #50-120', 'Chef', 13),
+('1018567904', 'Natalia Paredes', 'Avenida 60 #55-130', 'Físico', 14),
+('1019678015', 'Sebastián Ríos', 'Calle 35 #60-140', 'Matemático', 15),
+('1020789126', 'Valeria Suárez', 'Carrera 40 #65-150', 'Ingeniero Ambiental', 16),
+('1021890237', 'Manuel Ortega', 'Avenida 70 #70-160', 'Actor', 17),
+('1022901348', 'Diana Salgado', 'Calle 50 #75-170', 'Músico', 18),
+('1023012459', 'Daniel Gil', 'Carrera 55 #80-180', 'Economista', 19),
+('1024123560', 'Andrea León', 'Avenida 80 #85-190', 'Farmacéutico', 20),
+('1025234671', 'Pablo Castaño', 'Calle 60 #90-200', 'Historiador', 21),
+('1026345782', 'Fernanda Mejía', 'Carrera 65 #95-210', 'Geólogo', 22),
+('1027456893', 'Ricardo Peña', 'Avenida 90 #100-220', 'Ingeniero Mecánico', 23),
+('1028567904', 'Alejandra Vargas', 'Calle 70 #105-230', 'Politólogo', 24),
+('1029678015', 'David Patiño', 'Carrera 75 #110-240', 'Sociólogo', 25),
+('1030789126', 'Mónica Valencia', 'Avenida 100 #115-250', 'Filósofo', 26),
+('1031890237', 'Esteban Bustos', 'Calle 80 #120-260', 'Traductor', 27),
+('1032901348', 'Luciana Quintero', 'Carrera 85 #125-270', 'Desarrollador de Software', 28),
+('1033012459', 'Javier Benítez', 'Avenida 110 #130-280', 'Astrónomo', 29),
+('1034123560', 'Paula Ocampo', 'Calle 90 #135-290', 'Técnico en Redes', 30),
+('1035234671', 'Raúl Nieto', 'Carrera 95 #140-300', 'Ingeniero Eléctrico', 31),
+('1036345782', 'Carolina Vera', 'Avenida 120 #145-310', 'Investigador', 32),
+('1037456893', 'Francisco Montes', 'Calle 100 #150-320', 'Analista de Datos', 33),
+('1038567904', 'Jessica Ramírez', 'Carrera 105 #155-330', 'Especialista en Ciberseguridad', 34),
+('1039678015', 'Fernando Cárdenas', 'Avenida 130 #160-340', 'Veterinario', 35),
+('1040789126', 'Sergio Espinosa', 'Calle 110 #165-350', 'Antropólogo', 36),
+('1041890237', 'Isabela Giraldo', 'Carrera 115 #170-360', 'Diseñador UX/UI', 37),
+('1042901348', 'Roberto Sánchez', 'Avenida 140 #175-370', 'Nutricionista', 38),
+('1043012459', 'Mariana Herrera', 'Calle 120 #180-380', 'Epidemiólogo', 39),
+('1044123560', 'Álvaro Paredes', 'Carrera 125 #185-390', 'Enfermero', 40),
+('1045234671', 'Elena Guzmán', 'Avenida 150 #190-400', 'Investigador Forense', 41),
+('1046345782', 'Adriana Moya', 'Calle 130 #195-410', 'Profesor Universitario', 42),
+('1047456893', 'Cristian Figueroa', 'Carrera 135 #200-420', 'Terapeuta Ocupacional', 43),
+('1048567904', 'Jonathan Torres', 'Avenida 160 #205-430', 'Técnico en Electrónica', 44),
+('1049678015', 'Renata Gálvez', 'Calle 140 #210-440', 'Psicopedagogo', 45),
+('1050789126', 'Gustavo Medina', 'Carrera 145 #215-450', 'Piloto', 46),
+('1051890237', 'Marcela López', 'Avenida 170 #220-460', 'Abogado Penalista', 47),
+('1052901348', 'Tomás Cortés', 'Calle 150 #225-470', 'Fotógrafo', 48),
+('1053012459', 'Daniela Rojas', 'Carrera 155 #230-480', 'Escritor', 49),
+('1054123560', 'Federico Acosta', 'Avenida 180 #235-490', 'Consultor de Negocios', 50);
+
 
 -- insert conservacionArea
 INSERT INTO conservacionArea (idConservacion, idArea) VALUES
@@ -879,28 +853,40 @@ INSERT INTO vigilanciaArea (idVigilancia, idArea) VALUES
 (46, 29), (47, 34), (48, 39), (49, 44), (50, 49);
 
 
+-- insert departamentoParque
 
+INSERT INTO departamentoParque (idDepartamento, idParque) VALUES
+(1, 10), (2, 15), (3, 20), (4, 25), (5, 30),
+(6, 35), (7, 40), (8, 45), (9, 50), (10, 5),
+(11, 12), (12, 18), (13, 22), (14, 28), (15, 32),
+(16, 37), (17, 42), (18, 48), (19, 3), (20, 8),
+(21, 14), (22, 19), (23, 24), (24, 29), (25, 34),
+(26, 39), (27, 44), (28, 49), (29, 2), (30, 7),
+(31, 13), (32, 17), (33, 23), (34, 27), (35, 31),
+(36, 36), (37, 41), (38, 46), (39, 1), (40, 6),
+(41, 11), (42, 16), (43, 21), (44, 26), (45, 33),
+(46, 38), (47, 43), (48, 47), (49, 4), (50, 9);
 
-select count(id) from departamento d ;
-select count(id) from area;
-select count(id) from alojamiento a ; 
-select count(id) from conservacion c;
-select count(*) from conservacionArea ca ;  
-select count(*) from departamentoParque dp ;
-SELECT count(id) from entidad e ;
-select count(id) from especie;
-select count(id) from gestion;
-select count(id) from investigador i;
-select count(*) from investigadorProyecto ip ; 
-select count(id) from parque;
-select count(id) from personal;
-select count(id) from proyecto p ;
-select count(*) from proyectoEspecie pe ;
-SELECT count(id) from vehiculo v ;
-select count(id) from vigilancia v ;
-select count(*) from vigilanciaArea va; 
-select count(id) from visitante v; 
-select count(*) from visitanteAlojamiento va ; 
+select count(id) as departamento from departamento d ;
+select count(id) as area from area;
+select count(id) as alojamiento from alojamiento a ; 
+select count(id) as conservacion from conservacion c;
+select count(*) as ca from conservacionArea ca ;  
+select count(*) as dp from departamentoParque dp ;
+SELECT count(id)as entidad from entidad e ;
+select count(id) as especie from especie;
+select count(id) as gestion from gestion;
+select count(id)as investigador from investigador i;
+select count(*) as invp from investigadorProyecto ip ; 
+select count(id) as parque from parque;
+select count(id) as personal from personal;
+select count(id) as proyecto from proyecto p ;
+select count(*) as prye from proyectoEspecie pe ;
+SELECT count(id)as vehiculo from vehiculo v ;
+select count(id) as vigilancia from vigilancia v ;
+select count(*) as viga from vigilanciaArea va; 
+select count(id) as visitante from visitante v; 
+select count(*) as va from visitanteAlojamiento va  ; 
 
 
 
