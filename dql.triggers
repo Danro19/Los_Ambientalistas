@@ -1,0 +1,397 @@
+-- Tabla para historial de sueldos
+CREATE TABLE IF NOT EXISTS historial_sueldos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    idPersonal INT NOT NULL,
+    sueldo_anterior DECIMAL(10,2) NOT NULL,
+    sueldo_nuevo DECIMAL(10,2) NOT NULL,
+    fecha_cambio DATETIME NOT NULL,
+    FOREIGN KEY (idPersonal) REFERENCES personal(id)
+);
+
+
+
+-- Trigger 1: Actualizar estado de alojamiento al asignar visitante
+DELIMITER //
+CREATE TRIGGER actualizar_estado_alojamiento_insert
+AFTER INSERT ON visitanteAlojamiento
+FOR EACH ROW
+BEGIN
+    UPDATE alojamiento
+    SET estadoAlojamiento = FALSE
+    WHERE id = NEW.idAlojamiento;
+END //
+DELIMITER ;
+
+INSERT INTO visitanteAlojamiento (idVisitante, idAlojamiento) 
+VALUES (1, 1);
+
+SELECT estadoAlojamiento FROM alojamiento WHERE id = 1;
+
+-- Trigger 2: Actualizar estado de alojamiento al eliminar visitante
+DELIMITER //
+CREATE TRIGGER actualizar_estado_alojamiento_delete
+AFTER DELETE ON visitanteAlojamiento
+FOR EACH ROW
+BEGIN
+    -- Verificar si no hay más visitantes asignados a este alojamiento
+    IF NOT EXISTS (SELECT 1 FROM visitanteAlojamiento WHERE idAlojamiento = OLD.idAlojamiento) THEN
+        UPDATE alojamiento
+        SET estadoAlojamiento = TRUE
+        WHERE id = OLD.idAlojamiento;
+    END IF;
+END //
+DELIMITER ;
+-- Eliminar el visitante del alojamiento
+DELETE FROM visitanteAlojamiento WHERE idVisitante = 1 AND idAlojamiento = 1;
+SELECT estadoAlojamiento FROM alojamiento WHERE id = 1;
+
+-- Trigger 3: Registrar historial de cambios en especies
+DELIMITER //
+CREATE TRIGGER registrar_cambio_especie
+AFTER UPDATE ON especie
+FOR EACH ROW
+BEGIN
+    IF OLD.cantidad != NEW.cantidad THEN
+        INSERT INTO historial_especies (idEspecie, cantidad_anterior, cantidad_nueva, fecha_cambio)
+        VALUES (NEW.id, OLD.cantidad, NEW.cantidad, NOW());
+    END IF;
+END //
+DELIMITER ;
+-- Actualizar la cantidad de una especie
+UPDATE especie
+SET cantidad = 20
+WHERE id = 1;
+
+-- Verificar si se ha insertado un registro en historial_especies
+SELECT * FROM historial_especies WHERE idEspecie = 1;
+
+-- Trigger 4: Validar fechas de proyecto
+DELIMITER //
+CREATE TRIGGER validar_fechas_proyecto
+BEFORE INSERT ON proyecto
+FOR EACH ROW
+BEGIN
+    IF NEW.fechaInicio >= NEW.fechaFin THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'La fecha de inicio debe ser anterior a la fecha de fin';
+    END IF;
+END //
+DELIMITER ;
+-- Intentar insertar un proyecto con fecha de inicio posterior a la fecha de fin
+INSERT INTO proyecto (nombre, fechaInicio, fechaFin, presupuesto)
+VALUES ('Proyecto Test', '2025-03-10', '2025-03-01', 10000);
+
+-- Esto debería generar un error.
+
+
+
+-- Trigger 5: Validar fechas de proyecto en actualización
+DELIMITER //
+CREATE TRIGGER validar_fechas_proyecto_update
+BEFORE UPDATE ON proyecto
+FOR EACH ROW
+BEGIN
+    IF NEW.fechaInicio >= NEW.fechaFin THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'La fecha de inicio debe ser anterior a la fecha de fin';
+    END IF;
+END //
+DELIMITER ;
+-- Intentar actualizar un proyecto con fecha de inicio posterior a la fecha de fin
+UPDATE proyecto
+SET fechaInicio = '2025-03-10', fechaFin = '2025-03-01'
+WHERE id = 1;
+
+-- Esto debería generar un error.
+
+
+
+-- Trigger 6: Registrar historial de cambios en presupuesto
+DELIMITER //
+CREATE TRIGGER registrar_cambio_presupuesto
+AFTER UPDATE ON proyecto
+FOR EACH ROW
+BEGIN
+    IF OLD.presupuesto != NEW.presupuesto THEN
+        INSERT INTO historial_presupuestos (idProyecto, presupuesto_anterior, presupuesto_nuevo, fecha_cambio)
+        VALUES (NEW.id, OLD.presupuesto, NEW.presupuesto, NOW());
+    END IF;
+END //
+DELIMITER ;
+-- Actualizar el presupuesto de un proyecto
+UPDATE proyecto
+SET presupuesto = 15000
+WHERE id = 1;
+
+-- Verificar si se ha insertado un registro en historial_presupuestos
+SELECT * FROM historial_presupuestos WHERE idProyecto = 1;
+
+
+-- Trigger 7: Validar sueldo mínimo
+DELIMITER //
+CREATE TRIGGER validar_sueldo_minimo
+BEFORE INSERT ON personal
+FOR EACH ROW
+BEGIN
+    IF NEW.sueldo < 2500 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'El sueldo no puede ser menor a 2500';
+    END IF;
+END //
+DELIMITER ;
+
+-- Trigger 8: Validar sueldo mínimo en actualización
+DELIMITER //
+CREATE TRIGGER validar_sueldo_minimo_update
+BEFORE UPDATE ON personal
+FOR EACH ROW
+BEGIN
+    IF NEW.sueldo < 2500 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'El sueldo no puede ser menor a 2500';
+    END IF;
+END //
+DELIMITER ;
+-- Intentar insertar un personal con sueldo menor a 2500
+INSERT INTO personal (nombre, sueldo)
+VALUES ('Empleado Test', 2000);
+
+-- Esto debería generar un error.
+
+
+
+-- Trigger 9: Registrar historial de cambios en sueldo
+DELIMITER //
+CREATE TRIGGER registrar_cambio_sueldo
+AFTER UPDATE ON personal
+FOR EACH ROW
+BEGIN
+    IF OLD.sueldo != NEW.sueldo THEN
+        INSERT INTO historial_sueldos (idPersonal, sueldo_anterior, sueldo_nuevo, fecha_cambio)
+        VALUES (NEW.id, OLD.sueldo, NEW.sueldo, NOW());
+    END IF;
+END //
+DELIMITER ;
+-- Actualizar el sueldo de un personal
+UPDATE personal
+SET sueldo = 3000
+WHERE id = 1;
+
+-- Verificar si se ha insertado un registro en historial_sueldos
+SELECT * FROM historial_sueldos WHERE idPersonal = 1;
+
+
+
+-- Trigger 10: Validar capacidad de alojamiento
+DELIMITER //
+CREATE TRIGGER validar_capacidad_alojamiento
+BEFORE INSERT ON alojamiento
+FOR EACH ROW
+BEGIN
+    IF NEW.capacidad <= 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'La capacidad del alojamiento debe ser mayor a cero';
+    END IF;
+END //
+DELIMITER ;
+-- Intentar insertar un alojamiento con capacidad cero o negativa
+INSERT INTO alojamiento (nombre, capacidad)
+VALUES ('Alojamiento Test', -5);
+
+-- Esto debería generar un error.
+
+
+
+-- Trigger 11: Validar capacidad de alojamiento en actualización
+DELIMITER //
+CREATE TRIGGER validar_capacidad_alojamiento_update
+BEFORE UPDATE ON alojamiento
+FOR EACH ROW
+BEGIN
+    IF NEW.capacidad <= 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'La capacidad del alojamiento debe ser mayor a cero';
+    END IF;
+END //
+DELIMITER ;
+-- Intentar actualizar un alojamiento a una capacidad cero o negativa
+UPDATE alojamiento
+SET capacidad = -5
+WHERE id = 1;
+
+-- Esto debería generar un error.
+
+-- Trigger 12: Registrar log de nuevos visitantes
+DELIMITER //
+CREATE TRIGGER registrar_nuevo_visitante
+AFTER INSERT ON visitante
+FOR EACH ROW
+BEGIN
+    INSERT INTO log_sistema (accion, descripcion, fecha)
+    VALUES ('Nuevo visitante', CONCAT('Se registró el visitante: ', NEW.nombre), NOW());
+END //
+DELIMITER ;
+-- Insertar un nuevo visitante
+INSERT INTO visitante (nombre, idGestion)
+VALUES ('Juan Pérez', 2);
+
+-- Verificar el log en log_sistema
+SELECT * FROM log_sistema WHERE accion  LIKE '%Nuevo visitante%';
+
+
+
+-- Trigger 13: Validar cantidad de especie
+DELIMITER //
+CREATE TRIGGER validar_cantidad_especie
+BEFORE INSERT ON especie
+FOR EACH ROW
+BEGIN
+    IF NEW.cantidad < 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'La cantidad de individuos no puede ser negativa';
+    END IF;
+END //
+DELIMITER ;
+
+-- Intentar insertar una especie con cantidad negativa
+INSERT INTO especie (nombre, cantidad)
+VALUES ('Especie Test', -5);
+
+-- Esto debería generar un error.
+
+
+-- Trigger 14: Validar cantidad de especie en actualización
+DELIMITER //
+CREATE TRIGGER validar_cantidad_especie_update
+BEFORE UPDATE ON especie
+FOR EACH ROW
+BEGIN
+    IF NEW.cantidad < 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'La cantidad de individuos no puede ser negativa';
+    END IF;
+END //
+DELIMITER ;
+-- Intentar actualizar una especie con cantidad negativa
+UPDATE especie
+SET cantidad = -5
+WHERE id = 1;
+
+-- Esto debería generar un error.
+
+
+-- Trigger 15: Registrar log de eliminación de especies
+DELIMITER //
+CREATE TRIGGER registrar_eliminacion_especie
+BEFORE DELETE ON especie
+FOR EACH ROW
+BEGIN
+    INSERT INTO log_sistema (accion, descripcion, fecha)
+    VALUES ('Eliminación de especie', CONCAT('Se eliminó la especie: ', OLD.nombreCientifico), NOW());
+END //
+DELIMITER ;
+-- Eliminar una especie
+DELETE FROM especie WHERE id = 51;
+
+-- Verificar el log en log_sistema
+SELECT * FROM log_sistema WHERE accion LIKE '%Eliminación de especie%';
+
+
+
+-- Trigger 16: Validar extensión de área
+DELIMITER //
+CREATE TRIGGER validar_extension_area
+BEFORE INSERT ON area
+FOR EACH ROW
+BEGIN
+    IF NEW.extencionArea <= 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'La extensión del área debe ser mayor a cero';
+    END IF;
+END //
+DELIMITER ;
+-- Intentar insertar un área con extensión cero o negativa
+INSERT INTO area (nombre, extencionArea)
+VALUES ('Área Test', -5);
+
+-- Esto debería generar un error.
+
+
+-- Trigger 17: Validar extensión de área en actualización
+DELIMITER //
+CREATE TRIGGER validar_extension_area_update
+BEFORE UPDATE ON area
+FOR EACH ROW
+BEGIN
+    IF NEW.extencionArea <= 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'La extensión del área debe ser mayor a cero';
+    END IF;
+END //
+DELIMITER ;
+-- Intentar actualizar un área a una extensión negativa o cero
+UPDATE area
+SET extencionArea = -5
+WHERE id = 1;
+
+-- Esto debería generar un error.
+
+
+-- Trigger 18: Registrar log de nuevos proyectos
+DELIMITER //
+CREATE TRIGGER registrar_nuevo_proyecto
+AFTER INSERT ON proyecto
+FOR EACH ROW
+BEGIN
+    INSERT INTO log_sistema (accion, descripcion, fecha)
+    VALUES ('Nuevo proyecto', CONCAT('Se registró el proyecto: ', NEW.nombre, ' con presupuesto: ', NEW.presupuesto), NOW());
+END //
+DELIMITER ;
+
+-- Insertar un nuevo proyecto
+INSERT INTO proyecto (nombre, fechaInicio, fechaFin, presupuesto)
+VALUES ('Proyecto Test', '2025-03-01', '2025-05-01', 10000);
+
+-- Verificar el log en log_sistema
+SELECT * FROM log_sistema WHERE accion LIKE '%Nuevo proyecto%';
+
+
+-- Trigger 19: Registrar log de cambios en fechas de proyecto
+DELIMITER //
+CREATE TRIGGER registrar_cambio_fechas_proyecto
+AFTER UPDATE ON proyecto
+FOR EACH ROW
+BEGIN
+    IF OLD.fechaInicio != NEW.fechaInicio OR OLD.fechaFin != NEW.fechaFin THEN
+        INSERT INTO log_sistema (accion, descripcion, fecha)
+        VALUES ('Cambio de fechas', CONCAT('Se modificaron las fechas del proyecto: ', NEW.nombre), NOW());
+    END IF;
+END //
+DELIMITER ;
+
+UPDATE proyecto
+SET fechaInicio = '2025-03-15', fechaFin = '2025-06-01'
+WHERE id = 1;
+
+SELECT * FROM log_sistema WHERE accion LIKE '%Cambio de fechas%';
+
+
+-- Trigger 20: Validar superficie total de parque
+DELIMITER //
+CREATE TRIGGER validar_superficie_parque
+BEFORE INSERT ON parque
+FOR EACH ROW
+BEGIN
+    IF NEW.superficieTotal <= 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'La superficie total del parque debe ser mayor a cero';
+    END IF;
+END //
+DELIMITER ;
+INSERT INTO parque (nombre, superficieTotal)
+VALUES ('Parque Test', 0);
+
+
+
+
+
