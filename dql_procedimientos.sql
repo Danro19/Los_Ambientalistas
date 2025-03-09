@@ -1,3 +1,5 @@
+use Ambientalistas;
+
 -- procedimientos
 CREATE TABLE historial_especies (
     id INT AUTO_INCREMENT PRIMARY KEY,

@@ -1,3 +1,5 @@
+use Ambientalistas;
+
 -- 1. ADMINISTRADOR: Acceso total al sistema
 
 CREATE USER IF NOT EXISTS 'admin'@'localhost' IDENTIFIED BY 'Admin123?';
