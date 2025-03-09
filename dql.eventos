@@ -1,0 +1,489 @@
+-- eventos
+CREATE TABLE IF NOT EXISTS indicadores_ambientales (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    trimestre INT NOT NULL,
+    año INT NOT NULL,
+    calidad_aire DECIMAL(5, 2) NOT NULL,
+    calidad_agua DECIMAL(5, 2) NOT NULL,
+    biodiversidad DECIMAL(5, 2) NOT NULL,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS alertas_proyectos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    idProyecto INT NOT NULL,
+    estado ENUM('PROXIMO_VENCER', 'VENCIDO') NOT NULL,
+    fecha_alerta TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    descripcion TEXT NOT NULL,
+    FOREIGN KEY (idProyecto) REFERENCES proyecto(id)
+);
+CREATE TABLE IF NOT EXISTS estadisticas_especies (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    mes INT NOT NULL,
+    año INT NOT NULL,
+    total_especies INT NOT NULL,
+    total_individuos INT NOT NULL,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS estadisticas_alojamiento (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    fecha DATE NOT NULL,
+    total_alojamientos INT NOT NULL,
+    ocupados INT NOT NULL,
+    porcentaje_ocupacion DECIMAL(5, 2) NOT NULL,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS estadisticas_personal (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    mes INT NOT NULL,
+    año INT NOT NULL,
+    total_personal INT NOT NULL,
+    activos INT NOT NULL,
+    inactivos INT NOT NULL,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS condiciones_climaticas (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    fecha DATE NOT NULL,
+    temperatura_min DECIMAL(5, 1) NOT NULL,
+    temperatura_max DECIMAL(5, 1) NOT NULL,
+    precipitacion DECIMAL(5, 1) NOT NULL,
+    humedad DECIMAL(5, 1) NOT NULL,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS actividades_conservacion (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    semana INT NOT NULL,
+    año INT NOT NULL,
+    total_actividades INT NOT NULL,
+    completadas INT NOT NULL,
+    pendientes INT NOT NULL,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS indicadores_gestion (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    mes INT NOT NULL,
+    año INT NOT NULL,
+    eficiencia DECIMAL(5, 2) NOT NULL,
+    cumplimiento DECIMAL(5, 2) NOT NULL,
+    satisfaccion DECIMAL(5, 2) NOT NULL,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+create table if  not exists log_sistema(
+id int primary key auto_increment,
+accion varchar(50),
+descripcion varchar(200),
+fecha date 
+);
+create table if not exists estadisticas_visitantes (
+id int primary key auto_increment,
+semana date, 
+año date, 
+total_visitantes int
+);
+
+create table if not exists mantenimiento_vehiculos (
+id int primary key auto_increment, 
+idVehiculo int , 
+fecha_revision date, 
+estado varchar(50)
+);
+CREATE TABLE IF NOT EXISTS estadisticas_areas (
+    id INT AUTO_INCREMENT PRIMARY KEY,          
+    semestre INT NOT NULL,                      
+    año INT NOT NULL,                           
+    total_areas INT NOT NULL,                   
+    superficie_total FLOAT NOT NULL,            
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP 
+);
+
+CREATE TABLE IF NOT EXISTS alertas_conservacion (
+    id INT AUTO_INCREMENT PRIMARY KEY,          
+    descripcion TEXT NOT NULL,                  
+    estado ENUM('PENDIENTE', 'PROCESADA') DEFAULT 'PENDIENTE', 
+    fecha_alerta TIMESTAMP DEFAULT CURRENT_TIMESTAMP 
+);
+
+-- Evento 1: Actualización diaria de estadísticas de parques
+DELIMITER //
+CREATE EVENT IF NOT EXISTS actualizar_estadisticas_parques
+ON SCHEDULE EVERY 1 day
+STARTS CURRENT_TIMESTAMP
+DO
+BEGIN
+    
+    INSERT INTO log_sistema (accion, descripcion, fecha)
+    VALUES ('Actualización', 'Parque en buenas condiciones', NOW());
+END //
+DELIMITER ;
+
+
+
+-- Evento 2: Verificación semanal de alojamientos disponibles
+DELIMITER //
+CREATE EVENT IF NOT EXISTS verificar_alojamientos_disponibles
+ON SCHEDULE EVERY 1 WEEK
+STARTS CURRENT_TIMESTAMP
+DO
+BEGIN
+    UPDATE alojamiento
+    SET estadoAlojamiento = TRUE
+    WHERE id NOT IN (SELECT idAlojamiento FROM visitanteAlojamiento);
+    
+    INSERT INTO log_sistema (accion, descripcion, fecha)
+    VALUES ('Actualización', 'Estado de alojamientos actualizado', NOW());
+END //
+DELIMITER ;
+
+-- Evento 3: Actualización mensual de presupuestos de proyectos
+DELIMITER //
+CREATE EVENT IF NOT EXISTS actualizar_presupuestos_proyectos
+ON SCHEDULE EVERY 1 MONTH
+STARTS CURRENT_TIMESTAMP
+DO
+BEGIN
+    -- Simulación de ajuste de presupuestos por inflación (3% anual)
+    UPDATE proyecto
+    SET presupuesto = presupuesto * 1.0025
+    WHERE fechaFin > CURDATE();
+    
+    INSERT INTO log_sistema (accion, descripcion, fecha)
+    VALUES ('Actualización', 'Presupuestos de proyectos ajustados por inflación', NOW());
+END //
+DELIMITER ;
+
+-- Evento 4: Verificación trimestral de especies en peligro
+DELIMITER //
+CREATE EVENT IF NOT EXISTS verificar_especies_peligro
+ON SCHEDULE EVERY 3 MONTH
+STARTS CURRENT_TIMESTAMP
+DO
+BEGIN
+    -- Crear alerta para especies con menos de 20 individuos
+    INSERT INTO alertas_conservacion (idEspecie, nivel_alerta, fecha_alerta, descripcion)
+    SELECT id, 'ALTO', NOW(), CONCAT('Especie ', nombreCientifico, ' con solo ', cantidad, ' individuos')
+    FROM especie
+    WHERE cantidad < 20 AND id NOT IN (SELECT idEspecie FROM alertas_conservacion WHERE nivel_alerta = 'ALTO');
+    
+    INSERT INTO log_sistema (accion, descripcion, fecha)
+    VALUES ('Verificación', 'Especies en peligro verificadas', NOW());
+END //
+DELIMITER ;
+
+-- Evento 5: Actualización anual de sueldos del personal
+DELIMITER //
+CREATE EVENT IF NOT EXISTS actualizar_sueldos_personal
+ON SCHEDULE EVERY 1 YEAR
+STARTS CURRENT_TIMESTAMP + INTERVAL 1 DAY
+DO
+BEGIN
+    -- Incremento anual de sueldos (5%)
+    UPDATE personal
+    SET sueldo = sueldo * 1.05;
+    
+    INSERT INTO log_sistema (accion, descripcion, fecha)
+    VALUES ('Actualización', 'Sueldos del personal actualizados', NOW());
+END //
+DELIMITER ;
+
+-- Evento 6: Limpieza mensual de registros temporales
+DELIMITER //
+CREATE EVENT IF NOT EXISTS limpiar_registros_temporales
+ON SCHEDULE EVERY 1 MONTH
+STARTS CURRENT_TIMESTAMP
+DO
+BEGIN
+    -- Eliminar registros temporales con más de 6 meses
+    DELETE FROM log_sistema
+    WHERE fecha < DATE_SUB(NOW(), INTERVAL 6 MONTH);
+    
+    INSERT INTO log_sistema (accion, descripcion, fecha)
+    VALUES ('Limpieza', 'Registros temporales antiguos eliminados', NOW());
+END //
+DELIMITER ;
+
+-- Evento 7: Verificación diaria de proyectos vencidos
+DELIMITER //
+CREATE EVENT IF NOT EXISTS verificar_proyectos_vencidos
+ON SCHEDULE EVERY 1 DAY
+STARTS CURRENT_TIMESTAMP
+DO
+BEGIN
+    INSERT INTO alertas_proyectos (idProyecto, estado, fecha_alerta, descripcion)
+    SELECT id, 'VENCIDO', NOW(), CONCAT('Proyecto ', nombre, ' vencido el ', fechaFin)
+    FROM proyecto
+    WHERE fechaFin < CURDATE() AND id NOT IN (SELECT idProyecto FROM alertas_proyectos WHERE estado = 'VENCIDO');
+    
+    INSERT INTO log_sistema (accion, descripcion, fecha)
+    VALUES ('Verificación', 'Proyectos vencidos verificados', NOW());
+END //
+DELIMITER ;
+
+-- Evento 8: Actualización semanal de estadísticas de visitantes
+DELIMITER //
+CREATE EVENT IF NOT EXISTS actualizar_estadisticas_visitantes
+ON SCHEDULE EVERY 1 WEEK
+STARTS CURRENT_TIMESTAMP
+DO
+BEGIN
+    -- Actualizar tabla de estadísticas con conteo de visitantes por parque
+    INSERT INTO estadisticas_visitantes (semana, año, total_visitantes)
+    VALUES (WEEK(NOW()), YEAR(NOW()), (SELECT COUNT(*) FROM visitante));
+    
+    INSERT INTO log_sistema (accion, descripcion, fecha)
+    VALUES ('Actualización', 'Estadísticas de visitantes actualizadas', NOW());
+END //
+DELIMITER ;
+
+-- Evento 9: Verificación mensual de vehículos
+DELIMITER //
+CREATE EVENT IF NOT EXISTS verificar_estado_vehiculos
+ON SCHEDULE EVERY 1 MONTH
+STARTS CURRENT_TIMESTAMP
+DO
+BEGIN
+    -- Simulación de verificación de mantenimiento de vehículos
+    INSERT INTO mantenimiento_vehiculos (idVehiculo, fecha_revision, estado)
+    SELECT id, NOW(), 'PENDIENTE'
+    FROM vehiculo
+    WHERE id NOT IN (
+        SELECT idVehiculo FROM mantenimiento_vehiculos 
+        WHERE fecha_revision > DATE_SUB(NOW(), INTERVAL 1 MONTH)
+    );
+    
+    INSERT INTO log_sistema (accion, descripcion, fecha)
+    VALUES ('Verificación', 'Estado de vehículos verificado', NOW());
+END //
+DELIMITER ;
+
+-- Evento 10: Actualización semestral de áreas protegidas
+DELIMITER //
+CREATE EVENT IF NOT EXISTS actualizar_areas_protegidas
+ON SCHEDULE EVERY 6 MONTH
+STARTS CURRENT_TIMESTAMP
+DO
+BEGIN
+    -- Actualizar estadísticas de áreas protegidas
+    INSERT INTO estadisticas_areas (semestre, año, total_areas, superficie_total)
+    VALUES (
+        IF(MONTH(NOW()) <= 6, 1, 2),
+        YEAR(NOW()),
+        (SELECT COUNT(*) FROM area),
+        (SELECT SUM(extencionArea) FROM area)
+    );
+    
+    INSERT INTO log_sistema (accion, descripcion, fecha)
+    VALUES ('Actualización', 'Estadísticas de áreas protegidas actualizadas', NOW());
+END //
+DELIMITER ;
+
+-- Evento 11: Verificación diaria de alertas de conservación
+DELIMITER //
+CREATE EVENT IF NOT EXISTS procesar_alertas_conservacion
+ON SCHEDULE EVERY 1 DAY
+STARTS CURRENT_TIMESTAMP
+DO
+BEGIN
+    -- Actualizar estado de alertas procesadas
+    UPDATE alertas_conservacion
+    SET estado = 'PROCESADA'
+    WHERE estado = 'PENDIENTE' AND fecha_alerta < DATE_SUB(NOW(), INTERVAL 7 DAY);
+    
+    INSERT INTO log_sistema (accion, descripcion, fecha)
+    VALUES ('Procesamiento', 'Alertas de conservación procesadas', NOW());
+END //
+DELIMITER ;
+
+-- Evento 12: Actualización trimestral de indicadores ambientales
+DELIMITER //
+CREATE EVENT IF NOT EXISTS actualizar_indicadores_ambientales
+ON SCHEDULE EVERY 3 MONTH
+STARTS CURRENT_TIMESTAMP
+DO
+BEGIN
+    -- Simulación de actualización de indicadores ambientales
+    INSERT INTO indicadores_ambientales (trimestre, año, calidad_aire, calidad_agua, biodiversidad)
+    VALUES (
+        QUARTER(NOW()),
+        YEAR(NOW()),
+        ROUND(RAND() * 100, 2),
+        ROUND(RAND() * 100, 2),
+        ROUND(RAND() * 100, 2)
+    );
+    
+    INSERT INTO log_sistema (accion, descripcion, fecha)
+    VALUES ('Actualización', 'Indicadores ambientales actualizados', NOW());
+END //
+DELIMITER ;
+
+-- Evento 13: Verificación semanal de proyectos próximos a vencer
+DELIMITER //
+CREATE EVENT IF NOT EXISTS verificar_proyectos_proximos_vencer
+ON SCHEDULE EVERY 1 WEEK
+STARTS CURRENT_TIMESTAMP
+DO
+BEGIN
+    INSERT INTO alertas_proyectos (idProyecto, estado, fecha_alerta, descripcion)
+    SELECT id, 'PROXIMO_VENCER', NOW(), CONCAT('Proyecto ', nombre, ' vence en menos de 30 días')
+    FROM proyecto
+    WHERE fechaFin BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 30 DAY)
+    AND id NOT IN (SELECT idProyecto FROM alertas_proyectos WHERE estado = 'PROXIMO_VENCER');
+    
+    INSERT INTO log_sistema (accion, descripcion, fecha)
+    VALUES ('Verificación', 'Proyectos próximos a vencer verificados', NOW());
+END //
+DELIMITER ;
+
+-- Evento 14: Actualización mensual de estadísticas de especies
+DELIMITER //
+CREATE EVENT IF NOT EXISTS actualizar_estadisticas_especies
+ON SCHEDULE EVERY 1 MONTH
+STARTS CURRENT_TIMESTAMP
+DO
+BEGIN
+    -- Actualizar estadísticas mensuales de especies
+    INSERT INTO estadisticas_especies (mes, año, total_especies, total_individuos)
+    VALUES (
+        MONTH(NOW()),
+        YEAR(NOW()),
+        (SELECT COUNT(*) FROM especie),
+        (SELECT SUM(cantidad) FROM especie)
+    );
+    
+    INSERT INTO log_sistema (accion, descripcion, fecha)
+    VALUES ('Actualización', 'Estadísticas de especies actualizadas', NOW());
+END //
+DELIMITER ;
+
+-- Evento 15: Verificación diaria de ocupación de alojamientos
+DELIMITER //
+CREATE EVENT IF NOT EXISTS verificar_ocupacion_alojamientos
+ON SCHEDULE EVERY 1 DAY
+STARTS CURRENT_TIMESTAMP
+DO
+BEGIN
+    -- Registrar estadísticas de ocupación
+    INSERT INTO estadisticas_alojamiento (fecha, total_alojamientos, ocupados, porcentaje_ocupacion)
+    SELECT 
+        CURDATE(),
+        COUNT(*),
+        SUM(CASE WHEN id IN (SELECT idAlojamiento FROM visitanteAlojamiento) THEN 1 ELSE 0 END),
+        ROUND(SUM(CASE WHEN id IN (SELECT idAlojamiento FROM visitanteAlojamiento) THEN 1 ELSE 0 END) / COUNT(*) * 100, 2)
+    FROM alojamiento;
+    
+    INSERT INTO log_sistema (accion, descripcion, fecha)
+    VALUES ('Verificación', 'Ocupación de alojamientos verificada', NOW());
+END //
+DELIMITER ;
+
+-- Evento 16: Actualización anual de categorías de parques
+DELIMITER //
+CREATE EVENT IF NOT EXISTS actualizar_categorias_parques
+ON SCHEDULE EVERY 1 YEAR
+STARTS CURRENT_TIMESTAMP
+DO
+BEGIN
+    -- Simulación de actualización de categorías según criterios
+    UPDATE parque
+    SET categoria = CASE
+        WHEN superficieTotal > 3000 THEN 'A'
+        WHEN superficieTotal BETWEEN 2000 AND 3000 THEN 'B'
+        ELSE 'C'
+    END;
+    
+    INSERT INTO log_sistema (accion, descripcion, fecha)
+    VALUES ('Actualización', 'Categorías de parques actualizadas', NOW());
+END //
+DELIMITER ;
+
+-- Evento 17: Verificación mensual de personal activo
+DELIMITER //
+CREATE EVENT IF NOT EXISTS verificar_personal_activo
+ON SCHEDULE EVERY 1 MONTH
+STARTS CURRENT_TIMESTAMP
+DO
+BEGIN
+    -- Simulación de verificación de personal activo
+    INSERT INTO estadisticas_personal (mes, año, total_personal, activos, inactivos)
+    SELECT 
+        MONTH(NOW()),
+        YEAR(NOW()),
+        COUNT(*),
+        SUM(CASE WHEN estado = 'ACTIVO' THEN 1 ELSE 0 END),
+        SUM(CASE WHEN estado = 'INACTIVO' THEN 1 ELSE 0 END)
+    FROM personal;
+    
+    INSERT INTO log_sistema (accion, descripcion, fecha)
+    VALUES ('Verificación', 'Personal activo verificado', NOW());
+END //
+DELIMITER ;
+
+-- Evento 18: Actualización diaria de condiciones climáticas
+DELIMITER //
+CREATE EVENT IF NOT EXISTS actualizar_condiciones_climaticas
+ON SCHEDULE EVERY 1 DAY
+STARTS CURRENT_TIMESTAMP
+DO
+BEGIN
+    -- Simulación de registro de condiciones climáticas
+    INSERT INTO condiciones_climaticas (fecha, temperatura_min, temperatura_max, precipitacion, humedad)
+    VALUES (
+        CURDATE(),
+        ROUND(10 + RAND() * 10, 1),
+        ROUND(20 + RAND() * 15, 1),
+        ROUND(RAND() * 50, 1),
+        ROUND(40 + RAND() * 60, 1)
+    );
+    
+    INSERT INTO log_sistema (accion, descripcion, fecha)
+    VALUES ('Actualización', 'Condiciones climáticas actualizadas', NOW());
+END //
+DELIMITER ;
+
+-- Evento 19: Verificación semanal de actividades de conservación
+DELIMITER //
+CREATE EVENT IF NOT EXISTS verificar_actividades_conservacion
+ON SCHEDULE EVERY 1 WEEK
+STARTS CURRENT_TIMESTAMP
+DO
+BEGIN
+    -- Simulación de verificación de actividades de conservación
+    INSERT INTO actividades_conservacion (semana, año, total_actividades, completadas, pendientes)
+    VALUES (
+        WEEK(NOW()),
+        YEAR(NOW()),
+        FLOOR(10 + RAND() * 20),
+        FLOOR(5 + RAND() * 10),
+        FLOOR(RAND() * 5)
+    );
+    
+    INSERT INTO log_sistema (accion, descripcion, fecha)
+    VALUES ('Verificación', 'Actividades de conservación verificadas', NOW());
+END //
+DELIMITER ;
+
+-- Evento 20: Actualización mensual de indicadores de gestión
+DELIMITER //
+CREATE EVENT IF NOT EXISTS actualizar_indicadores_gestion
+ON SCHEDULE EVERY 1 MONTH
+STARTS CURRENT_TIMESTAMP
+DO
+BEGIN
+    -- Simulación de actualización de indicadores de gestión
+    INSERT INTO indicadores_gestion (mes, año, eficiencia, cumplimiento, satisfaccion)
+    VALUES (
+        MONTH(NOW()),
+        YEAR(NOW()),
+        ROUND(70 + RAND() * 30, 2),
+        ROUND(75 + RAND() * 25, 2),
+        ROUND(80 + RAND() * 20, 2)
+    );
+    
+    INSERT INTO log_sistema (accion, descripcion, fecha)
+    VALUES ('Actualización', 'Indicadores de gestión actualizados', NOW());
+END //
+DELIMITER ;
+
+
+
+
+
