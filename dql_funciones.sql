@@ -1,3 +1,5 @@
+use Ambientalistas;
+
 -- Función 1: Calcular edad del parque en años
 DELIMITER //
 CREATE FUNCTION calcular_edad_parque(p_idParque INT) 

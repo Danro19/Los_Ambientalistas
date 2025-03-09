@@ -1,3 +1,5 @@
+use Ambientalistas;
+
 -- consultas
 
 --  1 Mirar la cantidad de parques por departamento
