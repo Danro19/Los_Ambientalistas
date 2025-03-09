@@ -1,3 +1,4 @@
+use Ambientalistas;
 -- insert parque
 
 INSERT INTO parque (nombre, fechaDeclaracion, superficieTotal) VALUES
