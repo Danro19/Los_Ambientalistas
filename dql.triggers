@@ -254,7 +254,7 @@ END //
 DELIMITER ;
 
 -- Intentar insertar una especie con cantidad negativa
-INSERT INTO especie (nombre, cantidad)
+INSERT INTO especie (nombreVulgar, cantidad)
 VALUES ('Especie Test', -5);
 
 -- Esto debería generar un error.

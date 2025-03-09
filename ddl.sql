@@ -100,7 +100,8 @@ foreign key (idArea) references area(id)
 );
 create table if not exists visitante(
 id int primary key auto_increment,
-cedula varchar(20),
+cedula varchar(20) UNIQUE,
+nombre varchar(50),
 direccion varchar(100),
 profesion varchar(100),
 idGestion int not null,
@@ -142,6 +143,9 @@ foreign key (idInvestigador) references investigador(id),
 foreign key (idProyecto) references proyecto(id)
 );
 
+ALTER TABLE personal CHANGE COLUMN telofonoMovil telefonoMovil VARCHAR(15);
+ALTER TABLE personal ADD CONSTRAINT unique_cedula UNIQUE (cedula);
+ALTER TABLE personal MODIFY COLUMN sueldo DECIMAL(10,2) NOT NULL;
 
 
 
