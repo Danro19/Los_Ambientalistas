@@ -1,4 +1,4 @@
-Thought for 4 seconds### Documentación del Sistema de Gestión Ambiental "Ambientalistas"
+
 
 ## 1. Descripción del Proyecto
 
